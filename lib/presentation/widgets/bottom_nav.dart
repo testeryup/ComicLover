@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:getting_started/presentation/screens/home/home_screen.dart';
+import 'package:getting_started/presentation/screens/notifications/notifications_screen.dart';
+import 'package:getting_started/presentation/screens/settings/settings_screen.dart';
+import 'package:getting_started/presentation/screens/user/profile.dart';
 
 class NavigationApp extends StatelessWidget {
   const NavigationApp({super.key});
@@ -7,29 +11,29 @@ class NavigationApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(useMaterial3: true),
-      home: const NavigationExample(),
+      home: const NavigationBottomBar(),
     );
   }
 }
 
-class NavigationExample extends StatefulWidget {
-  const NavigationExample({super.key});
+class NavigationBottomBar extends StatefulWidget {
+  const NavigationBottomBar({super.key});
 
   @override
-  State<NavigationExample> createState() => _NavigationState();
+  State<NavigationBottomBar> createState() => _NavigationState();
 }
 
-class _NavigationState extends State<NavigationExample> {
+class _NavigationState extends State<NavigationBottomBar> {
   int currentPageIndex = 0;
   static const TextStyle optionStyle = TextStyle(
     fontSize: 30,
     fontWeight: FontWeight.bold,
   );
   static const List<Widget> _widgetOptions = <Widget>[
-    Text('home ne', style: optionStyle),
-    Text('notification', style: optionStyle),
-    Text('profile', style: optionStyle),
-    Text('setting', style: optionStyle),
+    const HomeScreen(),
+    const Profile(),
+    const NotificationsScreen(),
+    const SettingsScreen(),
   ];
   @override
   Widget build(BuildContext context) {
@@ -42,11 +46,12 @@ class _NavigationState extends State<NavigationExample> {
             icon: Icon(Icons.home_rounded),
             label: "Trang chủ",
           ),
+
+          BottomNavigationBarItem(icon: Icon(Icons.bookmark), label: "Profile"),
           BottomNavigationBarItem(
             icon: Icon(Icons.notifications),
             label: "Thông báo",
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.bookmark), label: "Profile"),
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Cài đặt"),
         ],
         onTap: (int index) {

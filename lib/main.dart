@@ -1,10 +1,11 @@
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
+import 'package:getting_started/app.dart';
 import 'package:provider/provider.dart';
 import 'presentation/widgets/bottom_nav.dart';
 
 void main() {
-  runApp(const NavigationApp());
+  runApp(const ComicApp());
 }
 
 // class MyApp extends StatelessWidget {
