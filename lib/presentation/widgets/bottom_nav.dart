@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:getting_started/presentation/screens/home/home_screen.dart';
 import 'package:getting_started/presentation/screens/notifications/notifications_screen.dart';
 import 'package:getting_started/presentation/screens/settings/settings_screen.dart';
-import 'package:getting_started/presentation/screens/user/profile.dart';
+import 'package:getting_started/presentation/screens/user/saved.dart';
 
 class NavigationApp extends StatelessWidget {
   const NavigationApp({super.key});
@@ -30,10 +30,10 @@ class _NavigationState extends State<NavigationBottomBar> {
     fontWeight: FontWeight.bold,
   );
   static const List<Widget> _widgetOptions = <Widget>[
-    const HomeScreen(),
-    const Profile(),
-    const NotificationsScreen(),
-    const SettingsScreen(),
+    HomeScreen(),
+    SavedScreen(),
+    NotificationsScreen(),
+    SettingsScreen(),
   ];
   @override
   Widget build(BuildContext context) {
@@ -47,7 +47,10 @@ class _NavigationState extends State<NavigationBottomBar> {
             label: "Trang chủ",
           ),
 
-          BottomNavigationBarItem(icon: Icon(Icons.bookmark), label: "Profile"),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.bookmark),
+            label: "Truyện đã lưu",
+          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.notifications),
             label: "Thông báo",
