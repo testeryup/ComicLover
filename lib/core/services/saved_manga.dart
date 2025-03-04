@@ -38,7 +38,6 @@ class SavedMangaService {
       description:
           'Cuộc sống thường ngày của một bác sĩ thú y trẻ tuổi tài năng, giải quyết các vấn đề sức khỏe cho thú cưng và xây dựng mối quan hệ với chủ của chúng.',
       status: 'Đang cập nhật',
-      currentChapter: 27,
     ),
     Manga(
       id: '658f7d7410dc9c0a7e2e4ce7',
@@ -49,7 +48,6 @@ class SavedMangaService {
       description:
           'Sau khi hy sinh trong trận chiến cuối cùng, vị vua hiệp sĩ huyền thoại được một vị thần hồi sinh và trở lại thế giới đã thay đổi sau 1000 năm.',
       status: 'Đang cập nhật',
-      currentChapter: 52,
     ),
     Manga(
       id: '6713687e80217a7ba9b9a0a5',
@@ -60,7 +58,6 @@ class SavedMangaService {
       description:
           'Một game thủ tầm thường bỗng nhiên nhận được năng lực đặc biệt trong thế giới game thực tế ảo, bắt đầu hành trình chinh phục đỉnh cao.',
       status: 'Đang cập nhật',
-      currentChapter: 84,
     ),
     Manga(
       id: '65a3b8dc31b3ad694edbef72',
@@ -71,18 +68,6 @@ class SavedMangaService {
       description:
           'Một tu tiên mạnh mẽ sau khi tu luyện vạn năm đã quay trở về trường học hiện đại nơi anh từng học, mang theo tri thức và sức mạnh phi thường.',
       status: 'Đang cập nhật',
-      currentChapter: 120,
-    ),
-    Manga(
-      id: '65a249d666b83f0711f2c339',
-      title: 'Cao Năng Phế Sài',
-      slug: 'cao-nang-phe-sai',
-      thumbUrl:
-          'https://img.otruyenapi.com/uploads/comics/cao-nang-phe-sai-thumb.jpg',
-      description:
-          'Một thiên tài bị đánh giá là phế sài đột nhiên thức tỉnh năng lực đặc biệt, bắt đầu hành trình phục thù và chứng minh bản thân.',
-      status: 'Hoàn thành',
-      currentChapter: 65,
     ),
   ];
 
@@ -179,16 +164,53 @@ class SavedMangaService {
 
   // Cập nhật chapter đã đọc
   void updateLastReadChapter(String mangaId, int chapterNumber) {
-    _lastReadChapter[mangaId] = chapterNumber;
+    final currentLastRead = _lastReadChapter[mangaId] ?? 0;
+    // Chỉ cập nhật nếu chapter mới lớn hơn chapter đã lưu
+    if (chapterNumber > currentLastRead) {
+      _lastReadChapter[mangaId] = chapterNumber;
+    }
     _lastAccessTime[mangaId] = DateTime.now(); // Cập nhật thời gian truy cập
   }
 
   // Thêm truyện vào danh sách đã lưu
+  // Thêm truyện vào danh sách đã lưu
   void addManga(Manga manga) {
-    if (!_savedMangas.any((element) => element.id == manga.id)) {
+    int existingIndex = _savedMangas.indexWhere(
+      (element) => element.id == manga.id,
+    );
+
+    if (existingIndex != -1) {
+      // Nếu truyện đã tồn tại, cập nhật thông tin mới
+      Manga existingManga = _savedMangas[existingIndex];
+
+      // Merge thông tin mới nhất
+      _savedMangas[existingIndex] = Manga(
+        id: manga.id,
+        title: manga.title,
+        slug: manga.slug,
+        thumbUrl: manga.thumbUrl,
+        description: manga.description,
+        status: manga.status,
+        currentChapter:
+            manga.getActualCurrentChapter() > existingManga.currentChapter
+                ? manga.getActualCurrentChapter()
+                : existingManga.currentChapter,
+        chapters:
+            manga.chapters.isNotEmpty ? manga.chapters : existingManga.chapters,
+        authors:
+            manga.authors.isNotEmpty ? manga.authors : existingManga.authors,
+        categories:
+            manga.categories.isNotEmpty
+                ? manga.categories
+                : existingManga.categories,
+      );
+    } else {
+      // Nếu truyện chưa tồn tại, thêm mới
       _savedMangas.add(manga);
-      _lastAccessTime[manga.id] = DateTime.now();
     }
+
+    // Cập nhật thời gian truy cập
+    _lastAccessTime[manga.id] = DateTime.now();
   }
 
   // Xóa truyện khỏi danh sách đã lưu

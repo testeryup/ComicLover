@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:getting_started/core/navigation/manga_navigator.dart';
+import 'package:getting_started/core/services/saved_manga.dart';
 import 'package:getting_started/data/models/manga.dart';
 
 class MangaCard extends StatelessWidget {
   final Manga manga;
   final int lastReadChapter;
-  final VoidCallback onTap;
   final VoidCallback? onLongPress;
 
   const MangaCard({
     Key? key,
     required this.manga,
-    required this.onTap,
     this.lastReadChapter = 0,
     this.onLongPress,
   }) : super(key: key);
@@ -18,8 +18,8 @@ class MangaCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
-      onLongPress: onLongPress,
+      onTap: () => MangaNavigator.navigateToMangaDetail(context, manga),
+      onLongPress: onLongPress ?? () => _showOptions(context),
       child: Card(
         clipBehavior: Clip.antiAlias,
         elevation: 2,
@@ -86,25 +86,23 @@ class MangaCard extends StatelessWidget {
                       ),
                     ),
 
-                  // Gradient ở dưới để làm nổi bật text
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: Container(
-                      height: 40,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.bottomCenter,
-                          end: Alignment.topCenter,
-                          colors: [
-                            Colors.black.withOpacity(0.7),
-                            Colors.transparent,
-                          ],
-                        ),
+                  // Nút đọc tiếp
+                  if (lastReadChapter > 0)
+                    Positioned(
+                      bottom: 8,
+                      right: 8,
+                      child: FloatingActionButton.small(
+                        heroTag: 'continue_${manga.id}',
+                        onPressed: () {
+                          MangaNavigator.continueReading(
+                            context,
+                            manga,
+                            lastReadChapter,
+                          );
+                        },
+                        child: const Icon(Icons.play_arrow),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -122,6 +120,76 @@ class MangaCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  void _showOptions(BuildContext context) {
+    final SavedMangaService _savedService = SavedMangaService();
+
+    showModalBottomSheet(
+      context: context,
+      builder:
+          (context) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: Text('Tiếp tục đọc'),
+                subtitle:
+                    lastReadChapter > 0
+                        ? Text('Chapter ${lastReadChapter + 1}')
+                        : Text('Bắt đầu đọc'),
+                leading: Icon(Icons.play_arrow),
+                onTap: () {
+                  Navigator.pop(context);
+                  MangaNavigator.continueReading(
+                    context,
+                    manga,
+                    lastReadChapter,
+                  );
+                },
+              ),
+              ListTile(
+                title: Text('Xem chi tiết truyện'),
+                leading: Icon(Icons.info_outline),
+                onTap: () {
+                  Navigator.pop(context);
+                  MangaNavigator.navigateToMangaDetail(context, manga);
+                },
+              ),
+              if (_savedService.isMangaSaved(manga.id))
+                ListTile(
+                  title: Text('Xóa khỏi danh sách'),
+                  leading: Icon(Icons.delete_outline, color: Colors.red),
+                  onTap: () {
+                    _savedService.removeManga(manga.id);
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Đã xóa ${manga.title}'),
+                        action: SnackBarAction(
+                          label: 'Hoàn tác',
+                          onPressed: () {
+                            _savedService.addManga(manga);
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              if (!_savedService.isMangaSaved(manga.id))
+                ListTile(
+                  title: Text('Lưu truyện'),
+                  leading: Icon(Icons.bookmark_add_outlined),
+                  onTap: () {
+                    _savedService.addManga(manga);
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Đã lưu ${manga.title}')),
+                    );
+                  },
+                ),
+            ],
+          ),
     );
   }
 }

@@ -6,6 +6,10 @@ class Manga {
   final String description;
   final String status;
   final int currentChapter;
+  final List<dynamic> chapters;
+  final List<String> authors;
+  final List<Map<String, dynamic>> categories;
+
   Manga({
     required this.id,
     required this.title,
@@ -13,61 +17,68 @@ class Manga {
     required this.thumbUrl,
     required this.description,
     required this.status,
-    required this.currentChapter,
+    this.currentChapter = 0,
+    this.chapters = const [],
+    this.authors = const [],
+    this.categories = const [],
   });
 
+  // Lấy số chapter thực tế từ dữ liệu API nếu có
+  int getActualCurrentChapter() {
+    if (chapters.isNotEmpty) {
+      for (var server in chapters) {
+        if (server['server_name'] == 'Server #1' &&
+            server['server_data'] != null) {
+          final serverData = server['server_data'] as List;
+          return serverData.length;
+        }
+      }
+    }
+    return currentChapter > 0 ? currentChapter : 0;
+  }
+
   factory Manga.fromJson(Map<String, dynamic> json) {
+    final data = json['data'];
+    if (data == null) {
+      return Manga(
+        id: '',
+        title: '',
+        slug: '',
+        thumbUrl: '',
+        description: '',
+        status: '',
+      );
+    }
+
+    final item = data['item'];
+    final appDomainCdnImage =
+        data['APP_DOMAIN_CDN_IMAGE'] ?? 'https://img.otruyenapi.com';
+
+    // Tính toán số chapter hiện có
+    int currentChapCount = 0;
+    List<dynamic> chaptersData = item['chapters'] ?? [];
+    for (var server in chaptersData) {
+      if (server['server_name'] == 'Server #1' &&
+          server['server_data'] != null) {
+        currentChapCount = (server['server_data'] as List).length;
+        break;
+      }
+    }
+
     return Manga(
-      id: json['item']['_id'] ?? '',
-      title: json['item']['name'] ?? '',
-      slug: json['item']['slug'] ?? '',
-      description: json['item']['content'] ?? '',
-      status: json['item']['status'] ?? '',
+      id: item['_id'] ?? '',
+      title: item['name'] ?? '',
+      slug: item['slug'] ?? '',
       thumbUrl:
-          "https://img.otruyenapi.com/uploads/comics/$json['item']['thumb_url']",
-      currentChapter:
-          json['item']['chapters'] != null
-              ? _countTotalChapters(json['item']['chapter'])
-              : 0,
+          item['thumb_url'] != null
+              ? '$appDomainCdnImage/uploads/comics/${item['thumb_url']}'
+              : '',
+      description: item['content'] ?? '',
+      status: item['status'] == 'ongoing' ? 'Đang cập nhật' : 'Hoàn thành',
+      currentChapter: currentChapCount,
+      chapters: chaptersData,
+      authors: List<String>.from(item['author'] ?? []),
+      categories: List<Map<String, dynamic>>.from(item['category'] ?? []),
     );
   }
-
-  static int _countTotalChapters(List<dynamic> servers) {
-    try {
-      // Tìm server #1
-      var server1 = servers.firstWhere(
-        (server) => server['server_name'] == 'Server #1',
-        orElse: () => {'server_data': []},
-      );
-
-      // Đếm số chapter trong server #1
-      return (server1['server_data'] as List).length;
-    } catch (e) {
-      print('Error counting chapters: $e');
-      return 0;
-    }
-  }
-  // static int _countTotalChapters(List<dynamic> servers) {
-  //   try {
-  //     // Nếu không có server nào
-  //     if (servers.isEmpty) return 0;
-
-  //     // Tìm server có nhiều chapter nhất (thường là server đầy đủ nhất)
-  //     int maxChapters = 0;
-
-  //     for (var server in servers) {
-  //       if (server['server_data'] != null) {
-  //         int serverChapters = (server['server_data'] as List).length;
-  //         if (serverChapters > maxChapters) {
-  //           maxChapters = serverChapters;
-  //         }
-  //       }
-  //     }
-
-  //     return maxChapters;
-  //   } catch (e) {
-  //     print('Error counting chapters: $e');
-  //     return 0;
-  //   }
-  // }
 }
