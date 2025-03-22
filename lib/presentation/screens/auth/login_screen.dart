@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:getting_started/presentation/screens/auth/register_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   @override
@@ -23,59 +24,36 @@ class LoginScreen extends StatelessWidget {
               const SizedBox(height: 30),
 
               // Nút đăng nhập Google
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withAlpha(76),
-                      spreadRadius: 3,
-                      blurRadius: 7,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
-                    minimumSize: const Size(double.infinity, 50),
-                  ),
-                  onPressed: () {},
-                  icon: Image.asset('assets/google_logo.png', height: 24),
-                  label: const Text("Continue with Google"),
-                ),
+              _buildSocialLoginButton(
+                context,
+                imagePath: 'assets/google_logo.png',
+                text: "Continue with Google",
+                backgroundColor: Colors.white,
+                textColor: Colors.black,
+                onPressed: () {},
               ),
               const SizedBox(height: 15),
 
-              // Nút đăng nhập Metar
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withAlpha(76),
-                      spreadRadius: 3,
-                      blurRadius: 7,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size(double.infinity, 50),
-                  ),
-                  onPressed: () {},
-                  icon: Image.asset('assets/meta_logo.png', height: 24),
-                  label: const Text("Continue with Meta"),
-                ),
+              // Nút đăng nhập Meta
+              _buildSocialLoginButton(
+                context,
+                imagePath: 'assets/meta_logo.png',
+                text: "Continue with Meta",
+                backgroundColor: Colors.blue,
+                textColor: Colors.white,
+                onPressed: () {},
               ),
 
               const SizedBox(height: 20),
+
+              // Điều hướng sang màn hình đăng ký
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => RegisterScreen()),
+                  );
+                },
                 child: const Text.rich(
                   TextSpan(
                     text: "Haven't account? ",
@@ -97,7 +75,10 @@ class LoginScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFFFFF1BE), Color(0xFFA2B2FC)],
+                    colors: [
+                      Color.fromARGB(255, 204, 199, 182),
+                      Color(0xFFA2B2FC),
+                    ],
                     begin: Alignment(-0.9, -0.9),
                     end: Alignment(0.9, 0.9),
                   ),
@@ -105,28 +86,11 @@ class LoginScreen extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    TextField(
-                      decoration: InputDecoration(
-                        labelText: "Login",
-                        border: UnderlineInputBorder(),
-                        labelStyle: TextStyle(color: Colors.white),
-                      ),
-                    ),
+                    _buildTextField(label: "Login"),
                     const SizedBox(height: 10),
-                    TextField(
-                      obscureText: true,
-                      style: TextStyle(
-                        color: Colors.white,
-                      ), // Đổi màu chữ khi nhập thành trắng
-                      decoration: InputDecoration(
-                        labelText: "Password",
-                        border: UnderlineInputBorder(),
-                        labelStyle: TextStyle(
-                          color: Colors.white,
-                        ), // Đổi màu nhãn thành trắng
-                      ),
-                    ),
+                    _buildTextField(label: "Password", obscureText: true),
                     const SizedBox(height: 10),
+
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
@@ -155,6 +119,53 @@ class LoginScreen extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  // Widget tạo TextField
+  Widget _buildTextField({required String label, bool obscureText = false}) {
+    return TextField(
+      obscureText: obscureText,
+      style: const TextStyle(color: Colors.white),
+      decoration: InputDecoration(
+        labelText: label,
+        border: const UnderlineInputBorder(),
+        labelStyle: const TextStyle(color: Colors.white),
+      ),
+    );
+  }
+
+  // Widget tạo nút đăng nhập Google/Meta
+  Widget _buildSocialLoginButton(
+    BuildContext context, {
+    required String imagePath,
+    required String text,
+    required Color backgroundColor,
+    required Color textColor,
+    required VoidCallback onPressed,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withAlpha(76),
+            spreadRadius: 3,
+            blurRadius: 7,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ElevatedButton.icon(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: backgroundColor,
+          foregroundColor: textColor,
+          minimumSize: const Size(double.infinity, 50),
+        ),
+        onPressed: onPressed,
+        icon: Image.asset(imagePath, height: 24),
+        label: Text(text),
       ),
     );
   }

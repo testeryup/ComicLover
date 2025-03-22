@@ -15,7 +15,15 @@ class ComicApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: LoginScreen());
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Comic App',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: LoginScreen(),
+    );
   }
 }
 
