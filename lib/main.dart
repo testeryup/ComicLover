@@ -2,9 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:getting_started/app.dart';
 import 'package:provider/provider.dart';
 import 'presentation/widgets/bottom_nav.dart';
+import 'presentation/screens/auth/login_screen.dart';
+
+import 'package:getting_started/presentation/screens/auth/login_screen.dart';
 
 void main() {
   runApp(const ComicApp());
+}
+
+class ComicApp extends StatelessWidget {
+  const ComicApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(home: LoginScreen());
+  }
 }
 
 // class MyApp extends StatelessWidget {
