@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:getting_started/data/models/manga.dart';
 import 'package:getting_started/data/models/chapter.dart';
@@ -206,6 +207,7 @@ class MangaApiService {
     try {
       print('Fetching chapter images from: $chapterApiUrl');
       final response = await http.get(Uri.parse(chapterApiUrl));
+      print(response.request?.headers);
 
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
@@ -225,6 +227,7 @@ class MangaApiService {
             List<String> imageUrls =
                 chapterImages.map<String>((img) {
                   final imageFile = img['image_file'];
+
                   return '$domainCdn/$chapterPath/$imageFile';
                 }).toList();
 

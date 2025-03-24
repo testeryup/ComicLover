@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:getting_started/data/models/manga.dart';
 import 'package:getting_started/core/services/saved_manga.dart';
+import 'package:getting_started/presentation/screens/manga/chapter_view_screen.dart';
 
 class MangaNavigator {
   /// Điều hướng đến màn hình chi tiết truyện bằng ID
   static void navigateToMangaDetailById(BuildContext context, String mangaId) {
+    print("navigateToMangaDetailById: $mangaId");
     Navigator.pushNamed(context, '/manga-detail', arguments: mangaId);
   }
 
   /// Điều hướng đến màn hình chi tiết truyện bằng slug
   static void navigateToMangaDetailBySlug(BuildContext context, String slug) {
+    print("navigateToMangaDetailBySlug: $slug");
     Navigator.pushNamed(context, '/manga-detail', arguments: 'slug:$slug');
   }
 
   /// Điều hướng đến màn hình chi tiết truyện bằng object Manga
   static void navigateToMangaDetail(BuildContext context, Manga manga) {
+    print("navigateToMangaDetail: $manga");
     Navigator.pushNamed(
       context,
       '/manga-detail',
@@ -28,10 +32,21 @@ class MangaNavigator {
     String mangaId,
     int chapterNumber,
   ) {
-    Navigator.pushNamed(
+    print(
+      "Calling navigateToChapter with: mangaId=$mangaId, chapterNumber=$chapterNumber",
+    );
+
+    // Không sử dụng named route, dùng trực tiếp MaterialPageRoute
+    Navigator.push(
       context,
-      '/chapter-view',
-      arguments: {'mangaId': mangaId, 'chapterNumber': chapterNumber},
+      MaterialPageRoute(
+        builder:
+            (context) => ChapterViewScreen(
+              mangaId: mangaId,
+              chapterNumber: chapterNumber,
+              // Không cần truyền chapterUrl, ChapterViewScreen tự xử lý
+            ),
+      ),
     );
   }
 
@@ -42,14 +57,17 @@ class MangaNavigator {
     int chapterNumber,
     String chapterUrl,
   ) {
-    Navigator.pushNamed(
+    print("Navigating to chapter with URL: $chapterUrl");
+    Navigator.push(
       context,
-      '/chapter-view',
-      arguments: {
-        'mangaId': mangaId,
-        'chapterNumber': chapterNumber,
-        'chapterUrl': chapterUrl,
-      },
+      MaterialPageRoute(
+        builder:
+            (context) => ChapterViewScreen(
+              mangaId: mangaId,
+              chapterNumber: chapterNumber,
+              chapterUrl: chapterUrl,
+            ),
+      ),
     );
   }
 

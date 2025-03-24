@@ -39,6 +39,10 @@ class ComicApp extends StatelessWidget {
           '/profile': (context) => const UserScreen(),
         },
         onGenerateRoute: (settings) {
+          print(
+            "Đang xử lý route: ${settings.name} với arguments: ${settings.arguments}",
+          );
+
           if (settings.name == '/manga-detail') {
             final args = settings.arguments;
             if (args is String) {

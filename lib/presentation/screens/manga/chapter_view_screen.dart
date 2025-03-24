@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:getting_started/core/services/manga_api_service.dart';
 import 'package:getting_started/core/services/saved_manga.dart';
+import 'package:getting_started/data/models/chapter.dart';
+import 'dart:math' as math;
 
 class ChapterViewScreen extends StatefulWidget {
   final String mangaId;
@@ -27,11 +29,25 @@ class _ChapterViewScreenState extends State<ChapterViewScreen> {
   bool _isLoading = true;
   int _totalChapters = 0;
   final ScrollController _scrollController = ScrollController();
+  late List<Chapter> _chapters;
+
+  List<String> _visibleImages = [];
+  List<String> _allImages = [];
+  int _loadBatchSize = 10;
+  bool _isLoadingMore = false;
 
   @override
   void initState() {
     super.initState();
     _loadChapterData();
+
+    // Thêm listener cho scroll controller
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >
+          _scrollController.position.maxScrollExtent - 1000) {
+        _loadMoreImages();
+      }
+    });
 
     // Cập nhật trạng thái đọc
     _savedService.updateLastReadChapter(widget.mangaId, widget.chapterNumber);
@@ -44,18 +60,30 @@ class _ChapterViewScreenState extends State<ChapterViewScreen> {
 
     try {
       // Lấy danh sách chapters để biết tổng số chapter
-      final chapters = await _apiService.getChaptersList(widget.mangaId);
+      _chapters = await _apiService.getChaptersList(widget.mangaId);
+      print("check chapters: $_chapters");
       setState(() {
-        _totalChapters = chapters.length;
+        _totalChapters = _chapters.length;
       });
 
+      // Tìm chapterUrl nếu không được truyền vào
+      String? chapterUrlToUse = widget.chapterUrl;
+      if (chapterUrlToUse == null) {
+        // Tìm chapter trong danh sách chapters
+        for (var chapter in _chapters) {
+          if (chapter.number == widget.chapterNumber) {
+            chapterUrlToUse = chapter.apiUrl;
+            break;
+          }
+        }
+      }
+
       // Lấy hình ảnh của chapter
-      if (widget.chapterUrl != null) {
-        _imagesFuture = _apiService.getChapterImages(widget.chapterUrl!);
+      if (chapterUrlToUse != null) {
+        _imagesFuture = _apiService.getChapterImages(chapterUrlToUse);
       } else {
-        _imagesFuture = _apiService.getChapterImagesByMangaIdAndChapterNumber(
-          widget.mangaId,
-          widget.chapterNumber,
+        throw Exception(
+          'Không thể tìm thấy URL của chapter ${widget.chapterNumber}',
         );
       }
     } catch (e) {
@@ -70,6 +98,15 @@ class _ChapterViewScreenState extends State<ChapterViewScreen> {
   void _navigateToChapter(int chapterNumber) {
     if (chapterNumber < 1 || chapterNumber > _totalChapters) return;
 
+    // Tìm chapterUrl cho chapter mới
+    String? chapterUrl;
+    for (var chapter in _chapters) {
+      if (chapter.number == chapterNumber) {
+        chapterUrl = chapter.apiUrl;
+        break;
+      }
+    }
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -77,12 +114,27 @@ class _ChapterViewScreenState extends State<ChapterViewScreen> {
             (context) => ChapterViewScreen(
               mangaId: widget.mangaId,
               chapterNumber: chapterNumber,
+              chapterUrl: chapterUrl, // Truyền chapterUrl nếu tìm thấy
             ),
       ),
     );
 
     // Cập nhật trạng thái đọc
     _savedService.updateLastReadChapter(widget.mangaId, chapterNumber);
+  }
+
+  void _loadMoreImages() {
+    if (_isLoadingMore || _visibleImages.length >= _allImages.length) return;
+
+    setState(() {
+      _isLoadingMore = true;
+      final end = math.min(
+        _visibleImages.length + _loadBatchSize,
+        _allImages.length,
+      );
+      _visibleImages.addAll(_allImages.sublist(_visibleImages.length, end));
+      _isLoadingMore = false;
+    });
   }
 
   @override
@@ -130,6 +182,12 @@ class _ChapterViewScreenState extends State<ChapterViewScreen> {
                     return const Center(child: Text('Không có hình ảnh nào'));
                   }
 
+                  // Khởi tạo dữ liệu hình ảnh
+                  if (_allImages.isEmpty) {
+                    _allImages = images;
+                    _visibleImages = images.take(_loadBatchSize).toList();
+                  }
+
                   return Column(
                     children: [
                       // Navigation buttons
@@ -170,10 +228,15 @@ class _ChapterViewScreenState extends State<ChapterViewScreen> {
                       Expanded(
                         child: ListView.builder(
                           controller: _scrollController,
-                          itemCount: images.length,
+                          itemCount: _visibleImages.length,
                           itemBuilder: (context, index) {
                             return Image.network(
-                              images[index],
+                              _visibleImages[index],
+                              headers: {
+                                'User-Agent':
+                                    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+                                'Referer': 'https://otruyen.cc/',
+                              },
                               loadingBuilder: (
                                 context,
                                 child,

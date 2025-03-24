@@ -8,97 +8,97 @@ class SavedMangaService {
 
   // Danh sách truyện đã lưu (mock data)
   final List<Manga> _savedMangas = [
-    Manga(
-      id: '657d148310dc9c0a7e2dd50d',
-      title: "Xích Nguyệt",
-      slug: "xich-nguyet",
-      thumbUrl:
-          'https://img.otruyenapi.com/uploads/comics/xich-nguyet-thumb.jpg',
-      description:
-          'Câu chuyện kể về một thiếu niên với vầng trăng màu đỏ, sở hữu sức mạnh bí ẩn có thể thay đổi vận mệnh thế giới.',
-      status: 'Đang cập nhật',
-      currentChapter: 57,
-    ),
-    Manga(
-      id: '658e76fb68e54cf5b508fd97',
-      title: 'Vưu Vật',
-      slug: 'vuu-vat',
-      thumbUrl: 'https://img.otruyenapi.com/uploads/comics/vuu-vat-thumb.jpg',
-      description:
-          'Trong thế giới nơi con người và sinh vật huyền bí chung sống, một thiếu niên phát hiện ra mình có khả năng giao tiếp với các sinh vật khác thường.',
-      status: 'Đang cập nhật',
-      currentChapter: 89,
-    ),
-    Manga(
-      id: '65b202ad66b83f0711f2ca0e',
-      title: 'Xin Chào! Bác Sĩ Thú Y',
-      slug: 'xin-chao-bac-si-thu-y',
-      thumbUrl:
-          'https://img.otruyenapi.com/uploads/comics/xin-chao-bac-si-thu-y-thumb.jpg',
-      description:
-          'Cuộc sống thường ngày của một bác sĩ thú y trẻ tuổi tài năng, giải quyết các vấn đề sức khỏe cho thú cưng và xây dựng mối quan hệ với chủ của chúng.',
-      status: 'Đang cập nhật',
-    ),
-    Manga(
-      id: '658f7d7410dc9c0a7e2e4ce7',
-      title: 'Vua Hiệp Sĩ Đã Trở Lại',
-      slug: 'vua-hiep-si-da-tro-lai-voi-mot-vi-than',
-      thumbUrl:
-          'https://img.otruyenapi.com/uploads/comics/vua-hiep-si-da-tro-lai-voi-mot-vi-than-thumb.jpg',
-      description:
-          'Sau khi hy sinh trong trận chiến cuối cùng, vị vua hiệp sĩ huyền thoại được một vị thần hồi sinh và trở lại thế giới đã thay đổi sau 1000 năm.',
-      status: 'Đang cập nhật',
-    ),
-    Manga(
-      id: '6713687e80217a7ba9b9a0a5',
-      title: 'Võng Du Thiên Hạ Vô Song',
-      slug: 'vong-du-thien-ha-vo-song',
-      thumbUrl:
-          'https://img.otruyenapi.com/uploads/comics/vong-du-thien-ha-vo-song-thumb.jpg',
-      description:
-          'Một game thủ tầm thường bỗng nhiên nhận được năng lực đặc biệt trong thế giới game thực tế ảo, bắt đầu hành trình chinh phục đỉnh cao.',
-      status: 'Đang cập nhật',
-    ),
-    Manga(
-      id: '65a3b8dc31b3ad694edbef72',
-      title: 'Tu Tiên Trở Về Tại Vườn Trường',
-      slug: 'tu-tien-tro-ve-tai-vuon-truong',
-      thumbUrl:
-          'https://img.otruyenapi.com/uploads/comics/tu-tien-tro-ve-tai-vuon-truong-thumb.jpg',
-      description:
-          'Một tu tiên mạnh mẽ sau khi tu luyện vạn năm đã quay trở về trường học hiện đại nơi anh từng học, mang theo tri thức và sức mạnh phi thường.',
-      status: 'Đang cập nhật',
-    ),
+    // Manga(
+    //   id: '657d148310dc9c0a7e2dd50d',
+    //   title: "Xích Nguyệt",
+    //   slug: "xich-nguyet",
+    //   thumbUrl:
+    //       'https://img.otruyenapi.com/uploads/comics/xich-nguyet-thumb.jpg',
+    //   description:
+    //       'Câu chuyện kể về một thiếu niên với vầng trăng màu đỏ, sở hữu sức mạnh bí ẩn có thể thay đổi vận mệnh thế giới.',
+    //   status: 'Đang cập nhật',
+    //   currentChapter: 57,
+    // ),
+    // Manga(
+    //   id: '658e76fb68e54cf5b508fd97',
+    //   title: 'Vưu Vật',
+    //   slug: 'vuu-vat',
+    //   thumbUrl: 'https://img.otruyenapi.com/uploads/comics/vuu-vat-thumb.jpg',
+    //   description:
+    //       'Trong thế giới nơi con người và sinh vật huyền bí chung sống, một thiếu niên phát hiện ra mình có khả năng giao tiếp với các sinh vật khác thường.',
+    //   status: 'Đang cập nhật',
+    //   currentChapter: 89,
+    // ),
+    // Manga(
+    //   id: '65b202ad66b83f0711f2ca0e',
+    //   title: 'Xin Chào! Bác Sĩ Thú Y',
+    //   slug: 'xin-chao-bac-si-thu-y',
+    //   thumbUrl:
+    //       'https://img.otruyenapi.com/uploads/comics/xin-chao-bac-si-thu-y-thumb.jpg',
+    //   description:
+    //       'Cuộc sống thường ngày của một bác sĩ thú y trẻ tuổi tài năng, giải quyết các vấn đề sức khỏe cho thú cưng và xây dựng mối quan hệ với chủ của chúng.',
+    //   status: 'Đang cập nhật',
+    // ),
+    // Manga(
+    //   id: '658f7d7410dc9c0a7e2e4ce7',
+    //   title: 'Vua Hiệp Sĩ Đã Trở Lại',
+    //   slug: 'vua-hiep-si-da-tro-lai-voi-mot-vi-than',
+    //   thumbUrl:
+    //       'https://img.otruyenapi.com/uploads/comics/vua-hiep-si-da-tro-lai-voi-mot-vi-than-thumb.jpg',
+    //   description:
+    //       'Sau khi hy sinh trong trận chiến cuối cùng, vị vua hiệp sĩ huyền thoại được một vị thần hồi sinh và trở lại thế giới đã thay đổi sau 1000 năm.',
+    //   status: 'Đang cập nhật',
+    // ),
+    // Manga(
+    //   id: '6713687e80217a7ba9b9a0a5',
+    //   title: 'Võng Du Thiên Hạ Vô Song',
+    //   slug: 'vong-du-thien-ha-vo-song',
+    //   thumbUrl:
+    //       'https://img.otruyenapi.com/uploads/comics/vong-du-thien-ha-vo-song-thumb.jpg',
+    //   description:
+    //       'Một game thủ tầm thường bỗng nhiên nhận được năng lực đặc biệt trong thế giới game thực tế ảo, bắt đầu hành trình chinh phục đỉnh cao.',
+    //   status: 'Đang cập nhật',
+    // ),
+    // Manga(
+    //   id: '65a3b8dc31b3ad694edbef72',
+    //   title: 'Tu Tiên Trở Về Tại Vườn Trường',
+    //   slug: 'tu-tien-tro-ve-tai-vuon-truong',
+    //   thumbUrl:
+    //       'https://img.otruyenapi.com/uploads/comics/tu-tien-tro-ve-tai-vuon-truong-thumb.jpg',
+    //   description:
+    //       'Một tu tiên mạnh mẽ sau khi tu luyện vạn năm đã quay trở về trường học hiện đại nơi anh từng học, mang theo tri thức và sức mạnh phi thường.',
+    //   status: 'Đang cập nhật',
+    // ),
   ];
 
   // Thông tin đọc của người dùng - Mock đọc thực tế hơn
   final Map<String, int> _lastReadChapter = {
-    '657d148310dc9c0a7e2dd50d': 45, // Đã đọc Xích Nguyệt đến chap 45
-    '658e76fb68e54cf5b508fd97': 76, // Đã đọc Vưu Vật đến chap 76
-    '65b202ad66b83f0711f2ca0e': 12, // Đã đọc Xin Chào! Bác Sĩ Thú Y đến chap 12
-    '6713687e80217a7ba9b9a0a5':
-        80, // Đã đọc Võng Du Thiên Hạ Vô Song đến chap 80
-    '65a3b8dc31b3ad694edbef72':
-        95, // Đã đọc Tu Tiên Trở Về Tại Vườn Trường đến chap 95
+    // '657d148310dc9c0a7e2dd50d': 45, // Đã đọc Xích Nguyệt đến chap 45
+    // '658e76fb68e54cf5b508fd97': 76, // Đã đọc Vưu Vật đến chap 76
+    // '65b202ad66b83f0711f2ca0e': 12, // Đã đọc Xin Chào! Bác Sĩ Thú Y đến chap 12
+    // '6713687e80217a7ba9b9a0a5':
+    //     80, // Đã đọc Võng Du Thiên Hạ Vô Song đến chap 80
+    // '65a3b8dc31b3ad694edbef72':
+    //     95, // Đã đọc Tu Tiên Trở Về Tại Vườn Trường đến chap 95
   };
 
   // Thời gian truy cập lần cuối để sắp xếp theo đọc gần đây
   final Map<String, DateTime> _lastAccessTime = {
-    '65b202ad66b83f0711f2ca0e': DateTime.now().subtract(
-      const Duration(hours: 2),
-    ), // 2 giờ trước
-    '6713687e80217a7ba9b9a0a5': DateTime.now().subtract(
-      const Duration(hours: 6),
-    ), // 6 giờ trước
-    '657d148310dc9c0a7e2dd50d': DateTime.now().subtract(
-      const Duration(days: 1),
-    ), // 1 ngày trước
-    '65a3b8dc31b3ad694edbef72': DateTime.now().subtract(
-      const Duration(days: 3),
-    ), // 3 ngày trước
-    '658e76fb68e54cf5b508fd97': DateTime.now().subtract(
-      const Duration(days: 7),
-    ), // 7 ngày trước
+    // '65b202ad66b83f0711f2ca0e': DateTime.now().subtract(
+    //   const Duration(hours: 2),
+    // ), // 2 giờ trước
+    // '6713687e80217a7ba9b9a0a5': DateTime.now().subtract(
+    //   const Duration(hours: 6),
+    // ), // 6 giờ trước
+    // '657d148310dc9c0a7e2dd50d': DateTime.now().subtract(
+    //   const Duration(days: 1),
+    // ), // 1 ngày trước
+    // '65a3b8dc31b3ad694edbef72': DateTime.now().subtract(
+    //   const Duration(days: 3),
+    // ), // 3 ngày trước
+    // '658e76fb68e54cf5b508fd97': DateTime.now().subtract(
+    //   const Duration(days: 7),
+    // ), // 7 ngày trước
   };
 
   // Lấy danh sách truyện đã lưu

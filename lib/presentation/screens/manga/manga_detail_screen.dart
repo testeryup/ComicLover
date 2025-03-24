@@ -196,7 +196,7 @@ class _MangaDetailScreenState extends State<MangaDetailScreen> {
                       Text('Trạng thái: ${manga.status}'),
                       if (manga.authors.isNotEmpty) ...[
                         const SizedBox(height: 8),
-                        Text('Tác giả: ${manga.authors.join(", ")}'),
+                        Text('Thể loại: ${manga.authors.join(", ")}'),
                       ],
                       if (manga.categories.isNotEmpty) ...[
                         const SizedBox(height: 8),
@@ -359,12 +359,22 @@ class _MangaDetailScreenState extends State<MangaDetailScreen> {
             color: isRead ? Colors.green : null,
           ),
           onTap: () {
-            MangaNavigator.navigateToChapterByUrl(
-              context,
-              mangaId,
-              chapter.number,
-              chapter.apiUrl,
-            );
+            final apiUrl = chapter.apiUrl; // Lấy URL API từ chapter
+            if (apiUrl != null && apiUrl.isNotEmpty) {
+              MangaNavigator.navigateToChapterByUrl(
+                context,
+                mangaId,
+                chapter.number,
+                apiUrl,
+              );
+            } else {
+              // Fallback nếu không có URL
+              MangaNavigator.navigateToChapter(
+                context,
+                mangaId,
+                chapter.number,
+              );
+            }
           },
         );
       }, childCount: _chapters!.length),

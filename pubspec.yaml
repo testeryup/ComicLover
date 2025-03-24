@@ -13,7 +13,7 @@ dependencies:
   cached_network_image: ^3.3.0
   provider: ^6.0.5
   shared_preferences: ^2.2.2
-
+  dio: ^5.4.0 
 dev_dependencies:
   flutter_test:
     sdk: flutter

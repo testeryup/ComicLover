@@ -10,10 +10,8 @@ class NavigationApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(useMaterial3: true),
-      home: const NavigationBottomBar(),
-    );
+    // Không wrap NavigationBottomBar trong MaterialApp
+    return const NavigationBottomBar();
   }
 }
 
@@ -33,7 +31,6 @@ class _NavigationState extends State<NavigationBottomBar> {
   static const List<Widget> _widgetOptions = <Widget>[
     HomeScreen(),
     SavedScreen(),
-    NotificationsScreen(),
     UserScreen(),
   ];
   @override
@@ -52,10 +49,6 @@ class _NavigationState extends State<NavigationBottomBar> {
             icon: Icon(Icons.bookmark),
             label: "Truyện đã lưu",
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: "Thông báo",
-          ),
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Cài đặt"),
         ],
         onTap: (int index) {
@@ -64,7 +57,7 @@ class _NavigationState extends State<NavigationBottomBar> {
           });
         },
         currentIndex: currentPageIndex,
-        selectedItemColor: Color(0xfff61bfad),
+        selectedItemColor: Color(0xfff61bfa),
         unselectedItemColor: Colors.black45,
         backgroundColor: Colors.deepPurple[50],
       ),
