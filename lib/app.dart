@@ -24,7 +24,7 @@ class ComicApp extends StatelessWidget {
       ),
       routes: {
         '/': (context) => NavigationBottomBar(),
-        '/home': (context) => NavigationBottomBar(),
+        '/home': (context) => HomeScreen(),
         '/saved': (context) => SavedScreen(),
         '/login': (context) => LoginScreen(),
       },
