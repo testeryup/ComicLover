@@ -1,17 +1,85 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:getting_started/core/services/auth_service.dart';
 import 'package:getting_started/presentation/screens/auth/register_screen.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({Key? key}) : super(key: key);
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _login(BuildContext context) async {
+    // Kiểm tra các trường nhập liệu
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      setState(() {
+        _errorMessage = 'Vui lòng nhập email và mật khẩu';
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      // Gọi phương thức login từ AuthService
+      final authService = Provider.of<AuthService>(context, listen: false);
+      final success = await authService.login(email, password);
+
+      if (success && mounted) {
+        // Nếu đăng nhập thành công, chuyển đến trang chính
+        Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+      } else if (mounted) {
+        // Nếu đăng nhập thất bại, hiển thị thông báo lỗi
+        setState(() {
+          _errorMessage = authService.error ?? 'Đăng nhập thất bại';
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Đã xảy ra lỗi: $e';
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(20.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              const SizedBox(height: 50),
               const Text(
                 "Welcome",
                 style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
@@ -30,7 +98,13 @@ class LoginScreen extends StatelessWidget {
                 text: "Continue with Google",
                 backgroundColor: Colors.white,
                 textColor: Colors.black,
-                onPressed: () {},
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Google login not implemented yet'),
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 15),
 
@@ -41,7 +115,13 @@ class LoginScreen extends StatelessWidget {
                 text: "Continue with Meta",
                 backgroundColor: Colors.blue,
                 textColor: Colors.white,
-                onPressed: () {},
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Meta login not implemented yet'),
+                    ),
+                  );
+                },
               ),
 
               const SizedBox(height: 20),
@@ -86,15 +166,44 @@ class LoginScreen extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    _buildTextField(label: "Login"),
+                    _buildTextField(
+                      label: "Email",
+                      controller: _emailController,
+                    ),
                     const SizedBox(height: 10),
-                    _buildTextField(label: "Password", obscureText: true),
+                    _buildTextField(
+                      label: "Password",
+                      obscureText: true,
+                      controller: _passwordController,
+                    ),
                     const SizedBox(height: 10),
+
+                    // Hiển thị lỗi nếu có
+                    if (_errorMessage != null)
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          _errorMessage!,
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      ),
 
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Forgot password feature not implemented yet',
+                              ),
+                            ),
+                          );
+                        },
                         child: const Text(
                           "Forgot password?",
                           style: TextStyle(color: Colors.white),
@@ -110,8 +219,20 @@ class LoginScreen extends StatelessWidget {
                         foregroundColor: Colors.white,
                         minimumSize: const Size(double.infinity, 50),
                       ),
-                      onPressed: () {},
-                      child: const Text("Continue"),
+                      onPressed: _isLoading ? null : () => _login(context),
+                      child:
+                          _isLoading
+                              ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
+                              : const Text("Continue"),
+                    ),
+
+                    // Thêm gợi ý tài khoản đăng nhập
+                    const SizedBox(height: 16),
+                    const Text(
+                      "Hint: admin@demo.com / password",
+                      style: TextStyle(color: Colors.white70, fontSize: 12),
                     ),
                   ],
                 ),
@@ -124,8 +245,13 @@ class LoginScreen extends StatelessWidget {
   }
 
   // Widget tạo TextField
-  Widget _buildTextField({required String label, bool obscureText = false}) {
+  Widget _buildTextField({
+    required String label,
+    bool obscureText = false,
+    required TextEditingController controller,
+  }) {
     return TextField(
+      controller: controller,
       obscureText: obscureText,
       style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
@@ -164,7 +290,18 @@ class LoginScreen extends StatelessWidget {
           minimumSize: const Size(double.infinity, 50),
         ),
         onPressed: onPressed,
-        icon: Image.asset(imagePath, height: 24),
+        icon: Image.asset(
+          imagePath,
+          height: 24,
+          errorBuilder: (context, error, stackTrace) {
+            // Nếu không tìm thấy hình ảnh, hiển thị icon thay thế
+            return Icon(
+              backgroundColor == Colors.white ? Icons.login : Icons.facebook,
+              size: 24,
+              color: textColor,
+            );
+          },
+        ),
         label: Text(text),
       ),
     );

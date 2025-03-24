@@ -3,6 +3,7 @@ import 'package:getting_started/presentation/screens/home/home_screen.dart';
 import 'package:getting_started/presentation/screens/notifications/notifications_screen.dart';
 import 'package:getting_started/presentation/screens/settings/settings_screen.dart';
 import 'package:getting_started/presentation/screens/user/saved.dart';
+import 'package:getting_started/presentation/screens/user/user_screen.dart';
 
 class NavigationApp extends StatelessWidget {
   const NavigationApp({super.key});
@@ -33,7 +34,7 @@ class _NavigationState extends State<NavigationBottomBar> {
     HomeScreen(),
     SavedScreen(),
     NotificationsScreen(),
-    SettingsScreen(),
+    UserScreen(),
   ];
   @override
   Widget build(BuildContext context) {
