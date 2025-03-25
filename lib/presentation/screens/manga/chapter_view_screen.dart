@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:getting_started/core/services/manga_api_service.dart';
 import 'package:getting_started/core/services/saved_manga.dart';
 import 'package:getting_started/data/models/chapter.dart';
+import 'package:getting_started/core/services/localization_service.dart'; // Thêm import
 import 'dart:math' as math;
 
 class ChapterViewScreen extends StatefulWidget {
   final String mangaId;
   final int chapterNumber;
-  final String?
-  chapterUrl; // Thêm tham số chapterUrl cho trường hợp có sẵn URL API
+  final String? chapterUrl;
 
   const ChapterViewScreen({
     Key? key,
@@ -61,7 +61,6 @@ class _ChapterViewScreenState extends State<ChapterViewScreen> {
     try {
       // Lấy danh sách chapters để biết tổng số chapter
       _chapters = await _apiService.getChaptersList(widget.mangaId);
-      print("check chapters: $_chapters");
       setState(() {
         _totalChapters = _chapters.length;
       });
@@ -83,11 +82,11 @@ class _ChapterViewScreenState extends State<ChapterViewScreen> {
         _imagesFuture = _apiService.getChapterImages(chapterUrlToUse);
       } else {
         throw Exception(
-          'Không thể tìm thấy URL của chapter ${widget.chapterNumber}',
+          '${context.tr('error_loading_chapter')} ${widget.chapterNumber}',
         );
       }
     } catch (e) {
-      print('Lỗi khi tải dữ liệu chapter: $e');
+      print('${context.tr('error_loading_chapter')}: $e');
     } finally {
       setState(() {
         _isLoading = false;
@@ -114,7 +113,7 @@ class _ChapterViewScreenState extends State<ChapterViewScreen> {
             (context) => ChapterViewScreen(
               mangaId: widget.mangaId,
               chapterNumber: chapterNumber,
-              chapterUrl: chapterUrl, // Truyền chapterUrl nếu tìm thấy
+              chapterUrl: chapterUrl,
             ),
       ),
     );
@@ -141,7 +140,7 @@ class _ChapterViewScreenState extends State<ChapterViewScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chương ${widget.chapterNumber}'),
+        title: Text('${context.tr('chapter')} ${widget.chapterNumber}'),
         actions: [
           IconButton(
             icon: const Icon(Icons.list),
@@ -167,10 +166,13 @@ class _ChapterViewScreenState extends State<ChapterViewScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text('Lỗi: ${snapshot.error}'),
+                          Text(
+                            '${context.tr('error_loading_chapter')}: ${snapshot.error}',
+                          ),
+                          const SizedBox(height: 16),
                           ElevatedButton(
                             onPressed: _loadChapterData,
-                            child: Text('Thử lại'),
+                            child: Text(context.tr('try_again')),
                           ),
                         ],
                       ),
@@ -179,7 +181,7 @@ class _ChapterViewScreenState extends State<ChapterViewScreen> {
 
                   final images = snapshot.data!;
                   if (images.isEmpty) {
-                    return const Center(child: Text('Không có hình ảnh nào'));
+                    return Center(child: Text(context.tr('no_images')));
                   }
 
                   // Khởi tạo dữ liệu hình ảnh
@@ -203,10 +205,10 @@ class _ChapterViewScreenState extends State<ChapterViewScreen> {
                                         widget.chapterNumber - 1,
                                       )
                                       : null,
-                              child: const Text('Chương trước'),
+                              child: Text(context.tr('previous_chapter')),
                             ),
                             Text(
-                              'Chương ${widget.chapterNumber}/$_totalChapters',
+                              '${context.tr('chapter')} ${widget.chapterNumber}/$_totalChapters',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -218,7 +220,7 @@ class _ChapterViewScreenState extends State<ChapterViewScreen> {
                                         widget.chapterNumber + 1,
                                       )
                                       : null,
-                              child: const Text('Chương sau'),
+                              child: Text(context.tr('next_chapter')),
                             ),
                           ],
                         ),
@@ -263,14 +265,14 @@ class _ChapterViewScreenState extends State<ChapterViewScreen> {
                                 return Container(
                                   height: 300,
                                   color: Colors.grey[300],
-                                  child: const Center(
+                                  child: Center(
                                     child: Column(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        Icon(Icons.error, size: 50),
-                                        SizedBox(height: 10),
-                                        Text('Không thể tải hình ảnh'),
+                                        const Icon(Icons.error, size: 50),
+                                        const SizedBox(height: 10),
+                                        Text(context.tr('cannot_load_image')),
                                       ],
                                     ),
                                   ),
@@ -294,7 +296,7 @@ class _ChapterViewScreenState extends State<ChapterViewScreen> {
                                         widget.chapterNumber - 1,
                                       )
                                       : null,
-                              child: const Text('Chương trước'),
+                              child: Text(context.tr('previous_chapter')),
                             ),
                             ElevatedButton(
                               onPressed:
@@ -303,7 +305,7 @@ class _ChapterViewScreenState extends State<ChapterViewScreen> {
                                         widget.chapterNumber + 1,
                                       )
                                       : null,
-                              child: const Text('Chương sau'),
+                              child: Text(context.tr('next_chapter')),
                             ),
                           ],
                         ),

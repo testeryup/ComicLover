@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:getting_started/core/services/auth_service.dart';
+import 'package:getting_started/core/services/localization_service.dart'; // Thêm import
 import 'package:getting_started/presentation/screens/auth/register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -30,7 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (email.isEmpty || password.isEmpty) {
       setState(() {
-        _errorMessage = 'Vui lòng nhập email và mật khẩu';
+        _errorMessage = context.tr('enter_email_password');
       });
       return;
     }
@@ -51,13 +52,13 @@ class _LoginScreenState extends State<LoginScreen> {
       } else if (mounted) {
         // Nếu đăng nhập thất bại, hiển thị thông báo lỗi
         setState(() {
-          _errorMessage = authService.error ?? 'Đăng nhập thất bại';
+          _errorMessage = authService.error ?? context.tr('login_failed');
         });
       }
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = 'Đã xảy ra lỗi: $e';
+          _errorMessage = '${context.tr('error_occurred')}: $e';
         });
       }
     } finally {
@@ -80,14 +81,17 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(height: 50),
-              const Text(
-                "Welcome",
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+              Text(
+                context.tr('welcome'),
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 5),
-              const Text(
-                "Sign in to start",
-                style: TextStyle(fontSize: 16, color: Colors.grey),
+              Text(
+                context.tr('sign_in_to_start'),
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
               ),
               const SizedBox(height: 30),
 
@@ -95,13 +99,13 @@ class _LoginScreenState extends State<LoginScreen> {
               _buildSocialLoginButton(
                 context,
                 imagePath: 'assets/google_logo.png',
-                text: "Continue with Google",
+                text: context.tr('continue_with_google'),
                 backgroundColor: Colors.white,
                 textColor: Colors.black,
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Google login not implemented yet'),
+                    SnackBar(
+                      content: Text(context.tr('google_login_not_impl')),
                     ),
                   );
                 },
@@ -112,14 +116,12 @@ class _LoginScreenState extends State<LoginScreen> {
               _buildSocialLoginButton(
                 context,
                 imagePath: 'assets/meta_logo.png',
-                text: "Continue with Meta",
+                text: context.tr('continue_with_meta'),
                 backgroundColor: Colors.blue,
                 textColor: Colors.white,
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Meta login not implemented yet'),
-                    ),
+                    SnackBar(content: Text(context.tr('meta_login_not_impl'))),
                   );
                 },
               ),
@@ -131,17 +133,19 @@ class _LoginScreenState extends State<LoginScreen> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => RegisterScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => const RegisterScreen(),
+                    ),
                   );
                 },
-                child: const Text.rich(
+                child: Text.rich(
                   TextSpan(
-                    text: "Haven't account? ",
-                    style: TextStyle(color: Colors.black),
+                    text: "${context.tr('no_account')} ",
+                    style: const TextStyle(color: Colors.black),
                     children: [
                       TextSpan(
-                        text: "Sign up!",
-                        style: TextStyle(color: Colors.blue),
+                        text: context.tr('sign_up'),
+                        style: const TextStyle(color: Colors.blue),
                       ),
                     ],
                   ),
@@ -167,12 +171,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   children: [
                     _buildTextField(
-                      label: "Email",
+                      label: context.tr('email'),
                       controller: _emailController,
                     ),
                     const SizedBox(height: 10),
                     _buildTextField(
-                      label: "Password",
+                      label: context.tr('password'),
                       obscureText: true,
                       controller: _passwordController,
                     ),
@@ -197,16 +201,16 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: TextButton(
                         onPressed: () {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
+                            SnackBar(
                               content: Text(
-                                'Forgot password feature not implemented yet',
+                                context.tr('forgot_password_not_impl'),
                               ),
                             ),
                           );
                         },
-                        child: const Text(
-                          "Forgot password?",
-                          style: TextStyle(color: Colors.white),
+                        child: Text(
+                          context.tr('forgot_password'),
+                          style: const TextStyle(color: Colors.white),
                         ),
                       ),
                     ),
@@ -225,14 +229,17 @@ class _LoginScreenState extends State<LoginScreen> {
                               ? const CircularProgressIndicator(
                                 color: Colors.white,
                               )
-                              : const Text("Continue"),
+                              : Text(context.tr('continue')),
                     ),
 
                     // Thêm gợi ý tài khoản đăng nhập
                     const SizedBox(height: 16),
-                    const Text(
-                      "Hint: admin@demo.com / password",
-                      style: TextStyle(color: Colors.white70, fontSize: 12),
+                    Text(
+                      context.tr('account_hint'),
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                      ),
                     ),
                   ],
                 ),

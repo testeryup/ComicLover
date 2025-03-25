@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:getting_started/core/services/auth_service.dart';
+import 'package:getting_started/core/services/localization_service.dart'; // Thêm import
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -19,11 +20,11 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _checkAuthentication() async {
     // Simulate a splash screen delay
     await Future.delayed(const Duration(seconds: 2));
-    
+
     if (!mounted) return;
-    
+
     final authService = Provider.of<AuthService>(context, listen: false);
-    
+
     // Check if user is already authenticated
     if (authService.isAuthenticated) {
       // Navigate to home if already authenticated
@@ -42,15 +43,11 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.menu_book_rounded,
-              size: 100,
-              color: Colors.white,
-            ),
+            const Icon(Icons.menu_book_rounded, size: 100, color: Colors.white),
             const SizedBox(height: 24),
             Text(
               'ComicLover',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,

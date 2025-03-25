@@ -3,11 +3,13 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:getting_started/presentation/screens/manga/manga_detail_screen.dart';
 import 'package:getting_started/core/services/reading_history_service.dart';
+import 'package:getting_started/core/services/localization_service.dart';
+
 // Move the getImageUrl method outside of any class to make it a top-level function
 String getImageUrl(String thumbUrl) {
   // For debugging
   print('Original thumb_url: $thumbUrl');
-  
+
   String imageUrl;
   if (thumbUrl.startsWith('http')) {
     // Already a full URL
@@ -21,7 +23,7 @@ String getImageUrl(String thumbUrl) {
     imageUrl = 'https://img.otruyenapi.com/uploads/comics/$thumbUrl';
     print('Constructed image URL: $imageUrl');
   }
-  
+
   // For debugging
   print('Constructed image URL: $imageUrl');
   return imageUrl;
@@ -58,16 +60,18 @@ class HomeScreenState extends State<HomeScreen> {
     setState(() {
       isLoading = true;
     });
-    
+
     try {
-      final response = await http.get(Uri.parse('https://otruyenapi.com/v1/api/home'));
+      final response = await http.get(
+        Uri.parse('https://otruyenapi.com/v1/api/home'),
+      );
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (mounted) {
           setState(() {
             items = data['data']['items'];
             isLoading = false;
-            
+
             // Extract unique categories
             Set<String> uniqueCategories = {'All'};
             for (var item in items) {
@@ -78,7 +82,7 @@ class HomeScreenState extends State<HomeScreen> {
               }
             }
             categories = uniqueCategories.toList();
-            
+
             // Pre-populate search results with all items
             searchResults = List.from(items);
           });
@@ -91,9 +95,9 @@ class HomeScreenState extends State<HomeScreen> {
         setState(() {
           isLoading = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading data: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error loading data: $e')));
       }
     }
   }
@@ -113,16 +117,19 @@ class HomeScreenState extends State<HomeScreen> {
       });
       return;
     }
-    
+
     setState(() {
       isSearchLoading = true;
     });
-    
+
     // Apply local filtering
-    final filteredResults = items.where((manga) {
-      return manga['name'].toString().toLowerCase().contains(query.toLowerCase());
-    }).toList();
-    
+    final filteredResults =
+        items.where((manga) {
+          return manga['name'].toString().toLowerCase().contains(
+            query.toLowerCase(),
+          );
+        }).toList();
+
     setState(() {
       searchResults = filteredResults;
       isSearchLoading = false;
@@ -133,15 +140,19 @@ class HomeScreenState extends State<HomeScreen> {
     if (searchQuery.isEmpty && selectedCategory == 'All') {
       return items;
     }
-    
+
     return items.where((item) {
-      bool matchesSearch = searchQuery.isEmpty || 
-          item['name'].toString().toLowerCase().contains(searchQuery.toLowerCase());
-      
-      bool matchesCategory = selectedCategory == 'All' || 
-          (item['category'] != null && 
-           item['category'].any((cat) => cat['name'] == selectedCategory));
-      
+      bool matchesSearch =
+          searchQuery.isEmpty ||
+          item['name'].toString().toLowerCase().contains(
+            searchQuery.toLowerCase(),
+          );
+
+      bool matchesCategory =
+          selectedCategory == 'All' ||
+          (item['category'] != null &&
+              item['category'].any((cat) => cat['name'] == selectedCategory));
+
       return matchesSearch && matchesCategory;
     }).toList();
   }
@@ -155,11 +166,7 @@ class HomeScreenState extends State<HomeScreen> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Colors.blue.shade100,
-              Colors.blue.shade50,
-              Colors.white,
-            ],
+            colors: [Colors.blue.shade100, Colors.blue.shade50, Colors.white],
             stops: const [0.0, 0.5, 1.0],
           ),
         ),
@@ -167,14 +174,20 @@ class HomeScreenState extends State<HomeScreen> {
           children: [
             // Add search bar at the top that's always visible
             Padding(
-              padding: const EdgeInsets.only(top: 50.0, left: 16.0, right: 16.0, bottom: 8.0),
+              padding: const EdgeInsets.only(
+                top: 50.0,
+                left: 16.0,
+                right: 16.0,
+                bottom: 8.0,
+              ),
               child: _buildSearchBar(),
             ),
             // Main content area - takes all remaining space
             Expanded(
-              child: isSearching
-                  ? _buildSearchResults()
-                  : isLoading
+              child:
+                  isSearching
+                      ? _buildSearchResults()
+                      : isLoading
                       ? const Center(child: CircularProgressIndicator())
                       : _buildMainContent(),
             ),
@@ -196,11 +209,11 @@ class HomeScreenState extends State<HomeScreen> {
     if (isSearchLoading) {
       return const Center(child: CircularProgressIndicator());
     }
-    
+
     if (searchResults.isEmpty) {
-      return const Center(child: Text('No results found'));
+      return Center(child: Text(context.tr('no_result')));
     }
-    
+
     // Simplified search results list that takes full height
     return ListView.builder(
       itemCount: searchResults.length,
@@ -208,7 +221,10 @@ class HomeScreenState extends State<HomeScreen> {
       itemBuilder: (context, index) {
         final manga = searchResults[index];
         return ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 8,
+          ),
           leading: Container(
             width: 50,
             height: 100,
@@ -232,7 +248,8 @@ class HomeScreenState extends State<HomeScreen> {
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           subtitle: Text(
-            'Latest: Chapter ${manga['chaptersLatest']?[0]?['chapter_name'] ?? 'Unknown'}',
+            '${context.tr('chapter')} ${manga['chaptersLatest']?[0]?['chapter_name'] ?? context.tr('unknown')}',
+            style: TextStyle(color: Colors.grey[600]),
           ),
           trailing: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -241,7 +258,9 @@ class HomeScreenState extends State<HomeScreen> {
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(
-              manga['status'] == 'ongoing' ? 'Ongoing' : 'Completed',
+              manga['status'] == 'ongoing'
+                  ? context.tr('ongoing')
+                  : context.tr('completed'),
               style: const TextStyle(color: Colors.white, fontSize: 12),
             ),
           ),
@@ -249,7 +268,7 @@ class HomeScreenState extends State<HomeScreen> {
             // Store necessary data before async operation
             final String mangaId = manga['_id'] ?? '';
             final String? slug = manga['slug'];
-            
+
             // Use a separate method to handle the async operations
             _navigateToMangaDetail(manga, mangaId, slug);
           },
@@ -259,27 +278,28 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   // New method to handle async operations and navigation
-  Future<void> _navigateToMangaDetail(dynamic manga, String mangaId, String? slug) async {
+  Future<void> _navigateToMangaDetail(
+    dynamic manga,
+    String mangaId,
+    String? slug,
+  ) async {
     await _historyService.addToHistory(manga);
-    
+
     // Check if widget is still mounted before using context
     if (!mounted) return;
-    
+
     _loadReadingHistory();
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => MangaDetailScreen(
-          mangaId: mangaId,
-          slug: slug,
-        ),
+        builder: (context) => MangaDetailScreen(mangaId: mangaId, slug: slug),
       ),
     );
   }
 
   Widget _buildMainContent() {
     final filteredItems = getFilteredItems();
-    
+
     return Stack(
       children: [
         SingleChildScrollView(
@@ -318,9 +338,10 @@ class HomeScreenState extends State<HomeScreen> {
               children: [
                 CircleAvatar(
                   radius: 30,
-                  backgroundImage: items.isNotEmpty 
-                      ? NetworkImage(getImageUrl(items[0]['thumb_url']))
-                      : null,
+                  backgroundImage:
+                      items.isNotEmpty
+                          ? NetworkImage(getImageUrl(items[0]['thumb_url']))
+                          : null,
                 ),
                 Positioned(
                   right: 0,
@@ -347,16 +368,13 @@ class HomeScreenState extends State<HomeScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Stay trending!',
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 14,
-                  ),
+                Text(
+                  context.tr('stay_trending'), // Thay vì 'Stay trending!'
+                  style: const TextStyle(color: Colors.grey, fontSize: 14),
                 ),
-                const Text(
-                  'Manga Reader',
-                  style: TextStyle(
+                Text(
+                  context.tr('manga_reader'), // Thay vì 'Manga Reader'
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -405,10 +423,10 @@ class HomeScreenState extends State<HomeScreen> {
           Expanded(
             child: TextField(
               controller: searchController,
-              decoration: const InputDecoration(
-                hintText: 'Search manga',
+              decoration: InputDecoration(
+                hintText: context.tr('search_manga'), // Thay vì 'Search manga'
                 border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(vertical: 15),
+                contentPadding: const EdgeInsets.symmetric(vertical: 15),
               ),
               onChanged: (value) {
                 setState(() {
@@ -442,12 +460,9 @@ class HomeScreenState extends State<HomeScreen> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Sort by',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+          Text(
+            context.tr('sort_by'), // Thay vì 'Sort by'
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           Wrap(
@@ -455,7 +470,7 @@ class HomeScreenState extends State<HomeScreen> {
             runSpacing: 8,
             children: [
               FilterChip(
-                label: const Text('Name (A-Z)'),
+                label: Text(context.tr('name_asc')), // Thay vì 'Name (A-Z)'
                 selected: false,
                 onSelected: (selected) {
                   setState(() {
@@ -465,7 +480,7 @@ class HomeScreenState extends State<HomeScreen> {
                 },
               ),
               FilterChip(
-                label: const Text('Name (Z-A)'),
+                label: Text(context.tr('name_desc')), // Thay vì 'Name (Z-A)'
                 selected: false,
                 onSelected: (selected) {
                   setState(() {
@@ -475,11 +490,15 @@ class HomeScreenState extends State<HomeScreen> {
                 },
               ),
               FilterChip(
-                label: const Text('Latest Update'),
+                label: Text(
+                  context.tr('latest_update'),
+                ), // Thay vì 'Latest Update'
                 selected: false,
                 onSelected: (selected) {
                   setState(() {
-                    items.sort((a, b) => b['updatedAt'].compareTo(a['updatedAt']));
+                    items.sort(
+                      (a, b) => b['updatedAt'].compareTo(a['updatedAt']),
+                    );
                   });
                   Navigator.pop(context);
                 },
@@ -500,7 +519,7 @@ class HomeScreenState extends State<HomeScreen> {
         itemBuilder: (context, index) {
           final category = categories[index];
           final isSelected = category == selectedCategory;
-          
+
           return Padding(
             padding: const EdgeInsets.only(right: 8),
             child: ChoiceChip(
@@ -531,83 +550,82 @@ class HomeScreenState extends State<HomeScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Trending Manga',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+            Text(
+              context.tr('trending_manga'), // Thay vì 'Trending Manga'
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            IconButton(
-              icon: const Icon(Icons.more_horiz),
-              onPressed: () {},
-            ),
+            IconButton(icon: const Icon(Icons.more_horiz), onPressed: () {}),
           ],
         ),
         const SizedBox(height: 12),
         SizedBox(
           height: 200,
-          child: filteredItems.isEmpty
-              ? const Center(child: Text('No manga found'))
-              : ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: filteredItems.length,
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  itemBuilder: (context, index) {
-                    final item = filteredItems[index];
-                    return GestureDetector(
-                      onTap: () {
-                        // Extract data before async operation
-                        final String mangaId = item['_id'] ?? '';
-                        final String? slug = item['slug'];
-                        _navigateToMangaDetail(item, mangaId, slug);
-                      },
-                      child: Container(
-                        width: 120,
-                        margin: const EdgeInsets.only(right: 16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: Image.network(
-                                getImageUrl(item['thumb_url']),
+          child:
+              filteredItems.isEmpty
+                  ? Center(
+                    child: Text(context.tr('no_manga_found')),
+                  ) // Thay vì 'No manga found'
+                  : ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: filteredItems.length,
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    itemBuilder: (context, index) {
+                      final item = filteredItems[index];
+                      return GestureDetector(
+                        onTap: () {
+                          // Extract data before async operation
+                          final String mangaId = item['_id'] ?? '';
+                          final String? slug = item['slug'];
+                          _navigateToMangaDetail(item, mangaId, slug);
+                        },
+                        child: Container(
+                          width: 120,
+                          margin: const EdgeInsets.only(right: 16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.network(
+                                  getImageUrl(item['thumb_url']),
+                                  width: 120,
+                                  height: 150,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      width: 120,
+                                      height: 150,
+                                      color: Colors.grey[300],
+                                      child: const Icon(Icons.error),
+                                    );
+                                  },
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              SizedBox(
                                 width: 120,
-                                height: 150,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(
-                                    width: 120,
-                                    height: 150,
-                                    color: Colors.grey[300],
-                                    child: const Icon(Icons.error),
-                                  );
-                                },
+                                child: Text(
+                                  item['name'],
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 8),
-                            SizedBox(
-                              width: 120,
-                              child: Text(
-                                item['name'],
-                                style: const TextStyle(fontWeight: FontWeight.bold),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                              Text(
+                                '${context.tr('from_category')} ${item['category']?[0]?['name'] ?? context.tr('unknown')}',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 12,
+                                ),
                               ),
-                            ),
-                            Text(
-                              'From ${item['category']?[0]?['name'] ?? 'Unknown'}',
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                ),
+                      );
+                    },
+                  ),
         ),
       ],
     );
@@ -626,17 +644,14 @@ class HomeScreenState extends State<HomeScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Top Readers',
-                style: TextStyle(
+              Text(
+                context.tr('top_readers'), // Thay vì 'Top Readers'
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.more_horiz),
-                onPressed: () {},
-              ),
+              IconButton(icon: const Icon(Icons.more_horiz), onPressed: () {}),
             ],
           ),
           const SizedBox(height: 16),
@@ -652,7 +667,9 @@ class HomeScreenState extends State<HomeScreen> {
                     children: [
                       CircleAvatar(
                         radius: 30,
-                        backgroundImage: NetworkImage(getImageUrl(items[index]['thumb_url'])),
+                        backgroundImage: NetworkImage(
+                          getImageUrl(items[index]['thumb_url']),
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -686,9 +703,9 @@ class HomeScreenState extends State<HomeScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Continue Reading',
-                style: TextStyle(
+              Text(
+                context.tr('continue_reading'), // Thay vì 'Continue Reading'
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -702,7 +719,10 @@ class HomeScreenState extends State<HomeScreen> {
                       _loadReadingHistory();
                     }
                   },
-                  child: const Text('Clear', style: TextStyle(color: Colors.white)),
+                  child: Text(
+                    context.tr('clear'), // Thay vì 'Clear'
+                    style: const TextStyle(color: Colors.white),
+                  ),
                 ),
             ],
           ),
@@ -714,63 +734,66 @@ class HomeScreenState extends State<HomeScreen> {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: const Center(
+              child: Center(
                 child: Text(
-                  'No reading history yet',
-                  style: TextStyle(color: Colors.grey),
+                  context.tr(
+                    'no_reading_history',
+                  ), // Thay vì 'No reading history yet'
+                  style: const TextStyle(color: Colors.grey),
                 ),
               ),
             )
           else
             Column(
-              children: readingHistory.map((manga) {
-                return GestureDetector(
-                  onTap: () {
-                    // Extract data before async operation
-                    final String mangaId = manga['_id'] ?? '';
-                    final String? slug = manga['slug'];
-                    _navigateToMangaDetail(manga, mangaId, slug);
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 30,
-                          backgroundImage: NetworkImage(getImageUrl(manga['thumb_url'])),
+              children:
+                  readingHistory.map((manga) {
+                    return GestureDetector(
+                      onTap: () {
+                        // Extract data before async operation
+                        final String mangaId = manga['_id'] ?? '';
+                        final String? slug = manga['slug'];
+                        _navigateToMangaDetail(manga, mangaId, slug);
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                manga['name'],
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 30,
+                              backgroundImage: NetworkImage(
+                                getImageUrl(manga['thumb_url']),
                               ),
-                              Text(
-                                'Chapter ${manga['chaptersLatest']?[0]?['chapter_name'] ?? 'Unknown'}',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    manga['name'],
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Chapter ${manga['chaptersLatest']?[0]?['chapter_name'] ?? 'Unknown'}',
+                                    style: TextStyle(color: Colors.grey[600]),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
+                            ),
+                            const Icon(Icons.play_arrow, size: 30),
+                          ],
                         ),
-                        const Icon(Icons.play_arrow, size: 30),
-                      ],
-                    ),
-                  ),
-                );
-              }).toList(),
+                      ),
+                    );
+                  }).toList(),
             ),
         ],
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:getting_started/core/services/localization_service.dart';
 import 'package:getting_started/presentation/screens/home/home_screen.dart';
 import 'package:getting_started/presentation/screens/notifications/notifications_screen.dart';
 import 'package:getting_started/presentation/screens/settings/settings_screen.dart';
@@ -39,17 +40,20 @@ class _NavigationState extends State<NavigationBottomBar> {
     return Scaffold(
       body: Center(child: _widgetOptions[currentPageIndex]),
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home_rounded),
-            label: "Trang chủ",
+            label: context.tr('home'),
           ),
 
           BottomNavigationBarItem(
             icon: Icon(Icons.bookmark),
-            label: "Truyện đã lưu",
+            label: context.tr('saved'),
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Cài đặt"),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: context.tr('settings'),
+          ),
         ],
         onTap: (int index) {
           setState(() {
@@ -57,7 +61,7 @@ class _NavigationState extends State<NavigationBottomBar> {
           });
         },
         currentIndex: currentPageIndex,
-        selectedItemColor: Color(0xfff61bfa),
+        selectedItemColor: Color.fromARGB(255, 27, 112, 250),
         unselectedItemColor: Colors.black45,
         backgroundColor: Colors.deepPurple[50],
       ),

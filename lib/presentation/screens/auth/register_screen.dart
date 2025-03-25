@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:getting_started/core/services/auth_service.dart';
+import 'package:getting_started/core/services/localization_service.dart'; // Thêm import
 import 'package:getting_started/presentation/screens/auth/login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -37,14 +38,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (username.isEmpty || email.isEmpty || password.isEmpty) {
       setState(() {
-        _errorMessage = 'Vui lòng điền đầy đủ thông tin';
+        _errorMessage = context.tr('fill_all_fields');
       });
       return;
     }
 
     if (password != confirmPassword) {
       setState(() {
-        _errorMessage = 'Mật khẩu không khớp';
+        _errorMessage = context.tr('passwords_dont_match');
       });
       return;
     }
@@ -65,13 +66,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
       } else if (mounted) {
         // Nếu đăng ký thất bại, hiển thị thông báo lỗi
         setState(() {
-          _errorMessage = authService.error ?? 'Đăng ký thất bại';
+          _errorMessage =
+              authService.error ?? context.tr('registration_failed');
         });
       }
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = 'Đã xảy ra lỗi: $e';
+          _errorMessage = '${context.tr('error_occurred')}: $e';
         });
       }
     } finally {
@@ -94,14 +96,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(height: 50),
-              const Text(
-                "Welcome",
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+              Text(
+                context.tr('welcome'),
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 5),
-              const Text(
-                "Sign up to start",
-                style: TextStyle(fontSize: 16, color: Colors.grey),
+              Text(
+                context.tr('sign_up_to_start'),
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
               ),
               const SizedBox(height: 30),
 
@@ -109,13 +114,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
               _buildSocialRegisterButton(
                 context,
                 imagePath: 'assets/google_logo.png',
-                text: "Sign up with Google",
+                text: context.tr('continue_with_google'),
                 backgroundColor: Colors.white,
                 textColor: Colors.black,
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Google sign up not implemented yet'),
+                    SnackBar(
+                      content: Text(context.tr('google_register_not_impl')),
                     ),
                   );
                 },
@@ -126,13 +131,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
               _buildSocialRegisterButton(
                 context,
                 imagePath: 'assets/meta_logo.png',
-                text: "Sign up with Meta",
+                text: context.tr('continue_with_meta'),
                 backgroundColor: Colors.blue,
                 textColor: Colors.white,
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Meta sign up not implemented yet'),
+                    SnackBar(
+                      content: Text(context.tr('meta_register_not_impl')),
                     ),
                   );
                 },
@@ -150,14 +155,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   );
                 },
-                child: const Text.rich(
+                child: Text.rich(
                   TextSpan(
-                    text: "Already have an account? ",
-                    style: TextStyle(color: Colors.black),
+                    text: "${context.tr('already_have_account')} ",
+                    style: const TextStyle(color: Colors.black),
                     children: [
                       TextSpan(
-                        text: "Sign in!",
-                        style: TextStyle(color: Colors.blue),
+                        text: context.tr('sign_in'),
+                        style: const TextStyle(color: Colors.blue),
                       ),
                     ],
                   ),
@@ -183,23 +188,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: Column(
                   children: [
                     _buildTextField(
-                      label: "Username",
+                      label: context.tr('username'),
                       controller: _usernameController,
                     ),
                     const SizedBox(height: 10),
                     _buildTextField(
-                      label: "Email",
+                      label: context.tr('email'),
                       controller: _emailController,
                     ),
                     const SizedBox(height: 10),
                     _buildTextField(
-                      label: "Password",
+                      label: context.tr('password'),
                       obscureText: true,
                       controller: _passwordController,
                     ),
                     const SizedBox(height: 10),
                     _buildTextField(
-                      label: "Confirm Password",
+                      label: context.tr('confirm_password'),
                       obscureText: true,
                       controller: _confirmPasswordController,
                     ),
@@ -220,7 +225,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     const SizedBox(height: 10),
 
-                    // Nút Register
+                    // Nút Sign Up
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.grey,
@@ -233,7 +238,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ? const CircularProgressIndicator(
                                 color: Colors.white,
                               )
-                              : const Text("Sign Up"),
+                              : Text(context.tr('sign_up')),
                     ),
                   ],
                 ),

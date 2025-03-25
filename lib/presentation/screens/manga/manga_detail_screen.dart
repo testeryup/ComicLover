@@ -4,6 +4,7 @@ import 'package:getting_started/core/services/saved_manga.dart';
 import 'package:getting_started/data/models/chapter.dart';
 import 'package:getting_started/data/models/manga.dart';
 import 'package:getting_started/core/navigation/manga_navigator.dart';
+import 'package:getting_started/core/services/localization_service.dart'; // Thêm import
 
 class MangaDetailScreen extends StatefulWidget {
   final String mangaId;
@@ -88,7 +89,9 @@ class _MangaDetailScreenState extends State<MangaDetailScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Lỗi: ${snapshot.error}'),
+                  Text(
+                    '${context.tr('error_loading_manga')}: ${snapshot.error}',
+                  ),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
@@ -96,7 +99,7 @@ class _MangaDetailScreenState extends State<MangaDetailScreen> {
                         _loadManga();
                       });
                     },
-                    child: const Text('Thử lại'),
+                    child: Text(context.tr('try_again')),
                   ),
                 ],
               ),
@@ -104,7 +107,7 @@ class _MangaDetailScreenState extends State<MangaDetailScreen> {
           }
 
           if (!snapshot.hasData) {
-            return const Center(child: Text('Không tìm thấy thông tin truyện'));
+            return Center(child: Text(context.tr('manga_not_found')));
           }
 
           final manga = snapshot.data!;
@@ -170,8 +173,8 @@ class _MangaDetailScreenState extends State<MangaDetailScreen> {
                         SnackBar(
                           content: Text(
                             _isSaved
-                                ? 'Đã thêm ${manga.title} vào danh sách'
-                                : 'Đã xóa ${manga.title} khỏi danh sách',
+                                ? '${context.tr('added_to_list')} ${manga.title}'
+                                : '${context.tr('removed_from_list')} ${manga.title}',
                           ),
                           duration: const Duration(seconds: 2),
                         ),
@@ -193,10 +196,14 @@ class _MangaDetailScreenState extends State<MangaDetailScreen> {
                         style: Theme.of(context).textTheme.headlineSmall,
                       ),
                       const SizedBox(height: 8),
-                      Text('Trạng thái: ${manga.status}'),
+                      Text(
+                        '${context.tr('status')}: ${_getLocalizedStatus(context, manga.status)}',
+                      ),
                       if (manga.authors.isNotEmpty) ...[
                         const SizedBox(height: 8),
-                        Text('Thể loại: ${manga.authors.join(", ")}'),
+                        Text(
+                          '${context.tr('genres')}: ${manga.authors.join(", ")}',
+                        ),
                       ],
                       if (manga.categories.isNotEmpty) ...[
                         const SizedBox(height: 8),
@@ -214,7 +221,7 @@ class _MangaDetailScreenState extends State<MangaDetailScreen> {
                       ],
                       const SizedBox(height: 16),
                       Text(
-                        'Nội dung',
+                        context.tr('description'),
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       const SizedBox(height: 8),
@@ -230,7 +237,7 @@ class _MangaDetailScreenState extends State<MangaDetailScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Tiến độ đọc: $lastReadChapter/$totalChapters',
+                                    '${context.tr('reading_progress')}: $lastReadChapter/$totalChapters',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -260,7 +267,9 @@ class _MangaDetailScreenState extends State<MangaDetailScreen> {
                             );
                           },
                           icon: const Icon(Icons.play_arrow),
-                          label: Text('Đọc tiếp chương ${lastReadChapter + 1}'),
+                          label: Text(
+                            '${context.tr('continue_reading')} ${context.tr('chapter')} ${lastReadChapter + 1}',
+                          ),
                           style: ElevatedButton.styleFrom(
                             minimumSize: const Size(double.infinity, 48),
                           ),
@@ -280,8 +289,8 @@ class _MangaDetailScreenState extends State<MangaDetailScreen> {
                           icon: const Icon(Icons.play_arrow),
                           label: Text(
                             lastReadChapter == totalChapters
-                                ? 'Đọc lại từ đầu'
-                                : 'Bắt đầu đọc',
+                                ? context.tr('read_from_beginning')
+                                : context.tr('start_reading'),
                           ),
                           style: ElevatedButton.styleFrom(
                             minimumSize: const Size(double.infinity, 48),
@@ -293,7 +302,7 @@ class _MangaDetailScreenState extends State<MangaDetailScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Danh sách chương',
+                            context.tr('chapters_list'),
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           if (_chapters != null && _chapters!.isNotEmpty)
@@ -303,7 +312,7 @@ class _MangaDetailScreenState extends State<MangaDetailScreen> {
                                   _chapters = _chapters!.reversed.toList();
                                 });
                               },
-                              child: const Text('Đảo thứ tự'),
+                              child: Text(context.tr('reverse_order')),
                             ),
                         ],
                       ),
@@ -321,6 +330,15 @@ class _MangaDetailScreenState extends State<MangaDetailScreen> {
     );
   }
 
+  String _getLocalizedStatus(BuildContext context, String status) {
+    if (status.toLowerCase().contains('cập nhật')) {
+      return context.tr('ongoing');
+    } else if (status.toLowerCase().contains('hoàn thành')) {
+      return context.tr('completed');
+    }
+    return status;
+  }
+
   Widget _buildChaptersList(String mangaId, int lastReadChapter) {
     if (_loadingChapters) {
       return const SliverToBoxAdapter(
@@ -334,11 +352,11 @@ class _MangaDetailScreenState extends State<MangaDetailScreen> {
     }
 
     if (_chapters == null || _chapters!.isEmpty) {
-      return const SliverToBoxAdapter(
+      return SliverToBoxAdapter(
         child: Center(
           child: Padding(
-            padding: EdgeInsets.all(32.0),
-            child: Text('Chưa có chương nào'),
+            padding: const EdgeInsets.all(32.0),
+            child: Text(context.tr('no_chapters')),
           ),
         ),
       );
@@ -351,7 +369,7 @@ class _MangaDetailScreenState extends State<MangaDetailScreen> {
 
         return ListTile(
           title: Text(
-            'Chương ${chapter.number}${chapter.title.isNotEmpty ? ': ${chapter.title}' : ''}',
+            '${context.tr('chapter')} ${chapter.number}${chapter.title.isNotEmpty ? ': ${chapter.title}' : ''}',
             style: TextStyle(color: isRead ? Colors.grey : null),
           ),
           leading: Icon(

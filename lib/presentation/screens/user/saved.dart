@@ -3,15 +3,15 @@ import 'package:getting_started/core/services/saved_manga.dart';
 import 'package:getting_started/data/models/manga.dart';
 import 'package:getting_started/presentation/widgets/manga_card.dart';
 import 'package:getting_started/core/navigation/manga_navigator.dart';
+import 'package:getting_started/core/services/localization_service.dart';
 
 class SavedScreen extends StatefulWidget {
-  const SavedScreen({Key? key}) : super(key: key);
+  const SavedScreen({super.key});
 
   @override
   State<SavedScreen> createState() => _SavedScreenState();
 }
 
-// Thay đổi phần build để sử dụng state cho danh sách manga đã sắp xếp
 class _SavedScreenState extends State<SavedScreen> {
   final SavedMangaService _savedService = SavedMangaService();
   late List<Manga> _displayedMangas;
@@ -26,13 +26,28 @@ class _SavedScreenState extends State<SavedScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Truyện đã lưu'),
+        title: Text(context.tr('saved')),
         actions: [
-          IconButton(
+          PopupMenuButton(
             icon: const Icon(Icons.sort),
-            onPressed: () {
-              _showSortOptions(context);
+            onSelected: (value) {
+              // Xử lý sắp xếp
             },
+            itemBuilder:
+                (context) => [
+                  PopupMenuItem(
+                    value: 'name',
+                    child: Text(context.tr('sort_by_name')),
+                  ),
+                  PopupMenuItem(
+                    value: 'recent',
+                    child: Text(context.tr('sort_by_recent')),
+                  ),
+                  PopupMenuItem(
+                    value: 'progress',
+                    child: Text(context.tr('sort_by_progress')),
+                  ),
+                ],
           ),
         ],
       ),
@@ -43,7 +58,6 @@ class _SavedScreenState extends State<SavedScreen> {
     );
   }
 
-  // Thêm phương thức _buildEmptyState
   Widget _buildEmptyState() {
     return Center(
       child: Column(
@@ -52,7 +66,7 @@ class _SavedScreenState extends State<SavedScreen> {
           Icon(Icons.bookmark_outline, size: 80, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
-            'Chưa có truyện nào được lưu',
+            context.tr('no_saved_comics'),
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -61,7 +75,7 @@ class _SavedScreenState extends State<SavedScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Thêm truyện để đọc sau',
+            context.tr('add_comics'),
             style: TextStyle(color: Colors.grey[600]),
           ),
           const SizedBox(height: 24),
@@ -70,14 +84,13 @@ class _SavedScreenState extends State<SavedScreen> {
               Navigator.pushNamed(context, '/home');
             },
             icon: const Icon(Icons.search),
-            label: const Text('Tìm truyện'),
+            label: Text(context.tr('search')),
           ),
         ],
       ),
     );
   }
 
-  // Thêm phương thức _buildSavedMangaList
   Widget _buildSavedMangaList(List<Manga> mangas) {
     return GridView.builder(
       padding: const EdgeInsets.all(16),
@@ -101,7 +114,6 @@ class _SavedScreenState extends State<SavedScreen> {
     );
   }
 
-  // Thêm phương thức _showMangaOptions
   void _showMangaOptions(Manga manga) {
     final lastReadChapter = _savedService.getLastReadChapter(manga.id);
 
@@ -126,7 +138,7 @@ class _SavedScreenState extends State<SavedScreen> {
               ),
               const Divider(),
               ListTile(
-                title: const Text('Xem chi tiết'),
+                title: Text(context.tr('detail')),
                 leading: const Icon(Icons.info_outline),
                 onTap: () {
                   Navigator.pop(context);
@@ -135,7 +147,9 @@ class _SavedScreenState extends State<SavedScreen> {
               ),
               if (lastReadChapter > 0)
                 ListTile(
-                  title: Text('Tiếp tục đọc (Chương ${lastReadChapter + 1})'),
+                  title: Text(
+                    '${context.tr('continue_reading_chapter')} ${lastReadChapter + 1})',
+                  ),
                   leading: const Icon(Icons.play_arrow),
                   onTap: () {
                     Navigator.pop(context);
@@ -148,7 +162,7 @@ class _SavedScreenState extends State<SavedScreen> {
                 )
               else
                 ListTile(
-                  title: const Text('Bắt đầu đọc'),
+                  title: Text(context.tr('start_reading')),
                   leading: const Icon(Icons.play_arrow),
                   onTap: () {
                     Navigator.pop(context);
@@ -156,7 +170,7 @@ class _SavedScreenState extends State<SavedScreen> {
                   },
                 ),
               ListTile(
-                title: const Text('Xóa khỏi danh sách'),
+                title: Text(context.tr('delete_from_the_list')),
                 leading: const Icon(Icons.delete_outline, color: Colors.red),
                 onTap: () {
                   Navigator.pop(context);
@@ -168,13 +182,12 @@ class _SavedScreenState extends State<SavedScreen> {
     );
   }
 
-  // Sửa hàm _showSortOptions để thực sự thay đổi danh sách hiển thị
   void _showSortOptions(BuildContext context) {
     showDialog(
       context: context,
       builder:
           (context) => SimpleDialog(
-            title: const Text('Sắp xếp theo'),
+            title: Text(context.tr('sort_by')),
             children: [
               SimpleDialogOption(
                 onPressed: () {
@@ -184,7 +197,7 @@ class _SavedScreenState extends State<SavedScreen> {
                         _savedService.getSavedMangasSortedByName();
                   });
                 },
-                child: const Text('Tên (A-Z)'),
+                child: Text(context.tr('sort_by_name')),
               ),
               SimpleDialogOption(
                 onPressed: () {
@@ -194,7 +207,7 @@ class _SavedScreenState extends State<SavedScreen> {
                         _savedService.getSavedMangasSortedByRecent();
                   });
                 },
-                child: const Text('Mới đọc gần đây nhất'),
+                child: Text(context.tr('sort_by_recent')),
               ),
               SimpleDialogOption(
                 onPressed: () {
@@ -204,31 +217,28 @@ class _SavedScreenState extends State<SavedScreen> {
                         _savedService.getSavedMangasSortedByProgress();
                   });
                 },
-                child: const Text('Tiến độ đọc cao nhất'),
+                child: Text(context.tr('sort_by_progress')),
               ),
             ],
           ),
     );
   }
 
-  // Cập nhật phương thức _removeManga để cập nhật UI đúng cách
   void _removeManga(Manga manga) {
     setState(() {
       _savedService.removeManga(manga.id);
-      // Cập nhật lại danh sách hiển thị
       _displayedMangas =
           _displayedMangas.where((m) => m.id != manga.id).toList();
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Đã xóa ${manga.title}'),
+        content: Text('${context.tr('deleted')} ${manga.title}'),
         action: SnackBarAction(
-          label: 'Hoàn tác',
+          label: context.tr('undo'),
           onPressed: () {
             setState(() {
               _savedService.addManga(manga);
-              // Thêm lại manga vào danh sách hiển thị
               _displayedMangas.add(manga);
             });
           },

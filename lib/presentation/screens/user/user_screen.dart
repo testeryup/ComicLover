@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:getting_started/presentation/screens/auth/login_screen.dart';
+import 'package:getting_started/presentation/widgets/language_switcher.dart';
 import 'package:provider/provider.dart';
 import 'package:getting_started/core/services/auth_service.dart';
+import 'package:getting_started/core/services/localization_service.dart'; // Thêm import này
 
 class UserScreen extends StatelessWidget {
   const UserScreen({Key? key}) : super(key: key);
@@ -27,11 +29,11 @@ class UserScreen extends StatelessWidget {
         final user = authService.currentUser!;
 
         return Scaffold(
-          appBar: AppBar(title: const Text('Tài khoản')),
+          appBar: AppBar(title: Text(context.tr('profile'))), // Đa ngôn ngữ
           body: SingleChildScrollView(
             child: Column(
               children: [
-                // Phần header profile
+                // Phần header profile giữ nguyên
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(24),
@@ -65,27 +67,32 @@ class UserScreen extends StatelessWidget {
                   ),
                 ),
 
-                // Menu items
+                // Menu items với đa ngôn ngữ
                 ListTile(
                   leading: const Icon(Icons.bookmark),
-                  title: const Text('Truyện đã lưu'),
+                  title: Text(context.tr('saved')),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () {
                     Navigator.pushNamed(context, '/saved');
                   },
                 ),
                 const Divider(),
-
                 ListTile(
-                  leading: const Icon(Icons.history),
-                  title: const Text('Lịch sử đọc'),
+                  leading: const Icon(Icons.supervised_user_circle),
+                  title: Text(context.tr('team_member')),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () {
-                    // TODO: Navigate to reading history
+                    Navigator.pushNamed(context, '/authors');
+                  },
+                ),
+                const Divider(),
+                ListTile(
+                  leading: const Icon(Icons.history),
+                  title: Text(context.tr('reading_history')),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Tính năng đang phát triển'),
-                      ),
+                      SnackBar(content: Text(context.tr('feature_developing'))),
                     );
                   },
                 ),
@@ -93,44 +100,55 @@ class UserScreen extends StatelessWidget {
 
                 ListTile(
                   leading: const Icon(Icons.settings),
-                  title: const Text('Cài đặt'),
+                  title: Text(context.tr('settings')),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () {
-                    // TODO: Navigate to settings
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Tính năng đang phát triển'),
-                      ),
+                      SnackBar(content: Text(context.tr('feature_developing'))),
                     );
                   },
                 ),
                 const Divider(),
 
-                // Đăng xuất - cải thiện phần này
+                // Language switcher giữ nguyên
+                const LanguageSwitcher(),
+                const Divider(),
+
+                // Đăng xuất đa ngôn ngữ
                 ListTile(
-                  leading: const Icon(Icons.logout, color: Colors.red),
-                  title: const Text(
-                    'Đăng xuất',
-                    style: TextStyle(color: Colors.red),
+                  leading: Icon(Icons.logout, color: Colors.red[700]),
+                  title: Text(
+                    context.tr('logout'),
+                    style: TextStyle(color: Colors.red[700]),
                   ),
                   onTap: () => _handleLogout(context, authService),
                 ),
 
-                // Thông tin ứng dụng
+                // Thông tin ứng dụng đa ngôn ngữ
                 const SizedBox(height: 32),
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
-                      const Text(
-                        'ComicLover v1.0.0',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                      const SizedBox(height: 8),
                       Text(
-                        '© ${DateTime.now().year} ComicLover Team',
+                        context.tr('device_info'),
                         style: const TextStyle(color: Colors.grey),
                       ),
+                      // const SizedBox(height: 8),
+                      // Text(
+                      //   context.tr('student_info1'),
+                      //   style: const TextStyle(color: Colors.grey),
+                      // ),
+                      // const SizedBox(height: 8),
+                      // Text(
+                      //   context.tr('student_info2'),
+                      //   style: const TextStyle(color: Colors.grey),
+                      // ),
+                      // const SizedBox(height: 8),
+                      // Text(
+                      //   context.tr('student_info3'),
+                      //   style: const TextStyle(color: Colors.grey),
+                      // ),
                     ],
                   ),
                 ),
@@ -142,37 +160,35 @@ class UserScreen extends StatelessWidget {
     );
   }
 
-  // Tách logic đăng xuất ra thành một phương thức riêng
+  // Tách logic đăng xuất ra thành một phương thức riêng - thêm đa ngôn ngữ
   Future<void> _handleLogout(
     BuildContext context,
     AuthService authService,
   ) async {
-    // Dialog xác nhận không thay đổi
+    // Dialog xác nhận đa ngôn ngữ
     final shouldLogout = await showDialog<bool>(
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Đăng xuất'),
-            content: const Text('Bạn có chắc chắn muốn đăng xuất?'),
+            title: Text(context.tr('logout')),
+            content: Text(context.tr('logout_confirm')),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Hủy'),
+                child: Text(context.tr('cancel')),
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Đăng xuất'),
+                child: Text(context.tr('logout')),
               ),
             ],
           ),
     );
 
+    // Phần còn lại không đổi
     if (shouldLogout == true && context.mounted) {
       try {
-        // Thực hiện đăng xuất ngay, không hiển thị loading dialog
         await authService.logout();
-
-        // Sau khi đăng xuất xong, chuyển hướng đến trang đăng nhập
         if (context.mounted) {
           Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -180,7 +196,6 @@ class UserScreen extends StatelessWidget {
           );
         }
       } catch (e) {
-        // Xử lý lỗi
         if (context.mounted) {
           ScaffoldMessenger.of(
             context,

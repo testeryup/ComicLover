@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:getting_started/core/navigation/manga_navigator.dart';
+import 'package:getting_started/core/services/localization_service.dart';
 import 'package:getting_started/core/services/saved_manga.dart';
 import 'package:getting_started/data/models/manga.dart';
 
@@ -133,12 +134,14 @@ class MangaCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                title: Text('Tiếp tục đọc'),
+                title: Text(context.tr('continue_reading')),
                 subtitle:
                     lastReadChapter > 0
-                        ? Text('Chapter ${lastReadChapter + 1}')
-                        : Text('Bắt đầu đọc'),
-                leading: Icon(Icons.play_arrow),
+                        ? Text(
+                          '${context.tr('chapter')} ${lastReadChapter + 1}',
+                        )
+                        : Text(context.tr('start_reading')),
+                leading: const Icon(Icons.play_arrow),
                 onTap: () {
                   Navigator.pop(context);
                   MangaNavigator.continueReading(
@@ -149,8 +152,8 @@ class MangaCard extends StatelessWidget {
                 },
               ),
               ListTile(
-                title: Text('Xem chi tiết truyện'),
-                leading: Icon(Icons.info_outline),
+                title: Text(context.tr('detail')),
+                leading: const Icon(Icons.info_outline),
                 onTap: () {
                   Navigator.pop(context);
                   MangaNavigator.navigateToMangaDetail(context, manga);
